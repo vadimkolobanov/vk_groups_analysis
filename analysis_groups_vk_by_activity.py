@@ -34,11 +34,15 @@ def get_users(group_id, from_data):
     for offset in range(0, get_offset(group_id)+1):
         params = {'access_token': token, 'v': 5.131, 'group_id': group_id, 'offset': offset*1000, 'fields': 'last_seen'}
         users = requests.get('https://api.vk.com/method/groups.getMembers', params=params).json()['response']
+
         for user in users['items']:
             # проверка последнего посещения, не ранее указанной даты from_data преобразованной в timestamp
             start_point_data = datetime.datetime.strptime(from_data, '%d.%m.%Y').timestamp()
+
             try:
+
                 if user['last_seen']['time'] >= start_point_data:
+
                     active_list.append(user['id'])
                 else:
                     un_active_list.append(user['id'])
@@ -52,7 +56,6 @@ def get_users(group_id, from_data):
 
 def parser(group_list):
     from_data = input('Введите дату, с которой хотите отслеживать активность\nв формате: дд.мм.гггг: ')
-    # from_data = '20.08.2022'
     all_active_users = []
     print(f'Анализируем с {from_data}\n')
     for group in group_list:
@@ -62,12 +65,10 @@ def parser(group_list):
             all_active_users.extend(users)
             time.sleep(2)
         except Exception as ex:
-            print(f'{group} - не предвиденная ошибка: {ex}\n')
+            print(f'{group} - непредвиденная ошибка: {ex}\n')
             continue
 
 
 if __name__ == '__main__':
-    # вносим в список интересующие вас группы
-    # group_list = ['happython', 'python_forum', 'vk_python', 'pirsipy']
     group_list = ['happython']
     parser(group_list)
